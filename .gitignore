@@ -222,4 +222,4 @@ uv.lock
 **/autograded/
 **/feedback/
 **/release/
-gradebook.db
+gradebook.db*
