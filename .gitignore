@@ -223,3 +223,7 @@ uv.lock
 **/feedback/
 **/release/
 gradebook.db*
+
+
+# project
+DNU/
