@@ -227,3 +227,4 @@ gradebook.db*
 
 # project
 DNU/
+.DS_Store
