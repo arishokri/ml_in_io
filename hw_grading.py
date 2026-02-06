@@ -7,6 +7,8 @@ from typing import Iterable, Optional
 
 import numpy as np
 
+RHO = 0.75
+
 
 @dataclass(frozen=True)
 class HWScoreResult:
@@ -135,7 +137,7 @@ if __name__ == "__main__":
     }
 
     for label, earned in students.items():
-        res_drop = homework_score(earned, max_pts, rho=0.75, alpha=1.0, drop=True)
+        res_drop = homework_score(earned, max_pts, rho=RHO, alpha=1.0, drop=True)
         res_nodrop = homework_score(earned, max_pts, drop=False)
 
         print(f"Student {label}:")
@@ -143,4 +145,4 @@ if __name__ == "__main__":
             f"  drop=True : avg={res_drop.avg:.4f}, dropped_index={res_drop.dropped_index}, "
             f"effective_weights={res_drop.effective_weights}"
         )
-        # print(f"  drop=False: avg={res_nodrop.avg:.4f}")
+        print(f"  drop=False: avg={res_nodrop.avg:.4f}")
