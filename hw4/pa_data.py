@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import pandas as pd
 from sklearn.datasets import make_classification
@@ -275,8 +277,11 @@ print(
     .to_string()
 )
 
-train_path = "hris_performance_train.csv"
-hidden_path = "hris_performance_hidden_test.csv"
+train_path = "data/hris_performance_train.csv"
+hidden_path = "data/hris_performance_hidden_test.csv"
+
+if not os.path.exists("data"):
+    os.makedirs("data")
 
 train_df.to_csv(train_path, index=False)
 hidden_test_df.to_csv(hidden_path, index=False)
