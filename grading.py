@@ -8,7 +8,7 @@ from typing import Iterable, List, Optional
 
 import numpy as np
 
-RHO = 0.75
+RHO = 0.0
 
 
 @dataclass(frozen=True)
@@ -170,24 +170,24 @@ def curve_scores(
 
 
 def get_final_score(
-    hw_maxes: Iterable, hw_raw: Iterable, exam: float, part: float, paper: float
+    hw_maxes: Iterable, hw_raw: Iterable, exam: float, attend: float, paper: float
 ) -> float:
     """Calculates the weighted final score for a student."""
     hw_avg = score_homework(hw_raw, hw_maxes, rho=RHO, alpha=1.0, drop=True)
     if not 0.0 <= exam <= 1.0:
         raise ValueError("exam value must be in [0.0, 1.0]")
-    if not 0.0 <= part <= 1.0:
+    if not 0.0 <= attend <= 1.0:
         raise ValueError("part value must be in [0.0, 1.0]")
     if not 0.0 <= paper <= 1.0:
         raise ValueError("paper value must be in [0.0, 1.0]")
-    final_score = 0.43 * hw_avg.avg + 0.2 * exam + 0.07 * part + 0.3 * paper
+    final_score = 0.43 * hw_avg.avg + 0.2 * exam + 0.07 * attend + 0.3 * paper
     return final_score
 
 
 # ---- Example usage (your two scenarios) ----
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--simulate_hw", action="store_true")
+    parser.add_argument("--simulate_drop", action="store_true")
     parser.add_argument("--simulate_curving", action="store_true")
     args = parser.parse_args()
 
@@ -201,22 +201,20 @@ if __name__ == "__main__":
         "Matthew": 0.5083,
         "Shengqi": 0.70,
     }
-    if args.simulate_hw:
-        hw_max_pts = [100, 100, 120, 140]
+    hw_max_pts = [100, 100, 120, 140]
+    hw_raw = {
+        "Vivian": [95.5, 98.5, 48, 132],
+        "Eliz": [0, 97, 103, 99],
+        "Angela": [94, 96, 98.5, 137],
+        "Mohammad": [96.5, 98, 94, 135],
+        "Kenneth": [98, 97, 113, 136],
+        "Kezia": [91.5, 94.5, 108, 82],
+        "Matthew": [97, 97, 111, 108],
+        "Shengqi": [94.5, 93.5, 109.5, 136],
+    }
+    if args.simulate_drop:
         # The first three students have 3/4 homework scores in common.
-        hw_raw = {
-            # Student A: HW1 missed
-            "A": [0, 98, 0.82 * 120, 0.78 * 140],
-            # Student B: HW3 missed
-            "B": [95, 98, 0, 0.78 * 140],
-            # Student C: Average across the board
-            "C": [95, 98, 0.82 * 120, 0.78 * 140],
-            # Student D: Great across the board
-            "D": [97, 98, 0.93 * 120, 0.91 * 140],
-            # Student E: Poor across the board
-            "E": [88, 89, 0.71 * 120, 0.73 * 140],
-        }
-
+        hw_raw = dict(sorted(hw_raw.items(), key=lambda item: item[1], reverse=True))
         for student, raw in hw_raw.items():
             hw_score_drop = score_homework(
                 raw, hw_max_pts, rho=RHO, alpha=1.0, drop=True
@@ -244,63 +242,42 @@ if __name__ == "__main__":
             )
 
     else:
-        hw_max_pts = [100, 100, 120, 140]
-        hw_raw = {
-            "Vivian": [95.5, 98.5, 48, 115],
-            "Eliz": [0, 97, 103, 115],
-            "Angela": [94, 96, 98.5, 115],
-            "Mohammad": [96.5, 98, 94, 115],
-            "Kenneth": [98, 97, 113, 115],
-            "Kezia": [91.5, 94.5, 108, 115],
-            "Matthew": [97, 97, 111, 115],
-            "Shengqi": [94.5, 93.5, 109.5, 130],
-        }
-        # exam = {
-        #     "Vivian": 0.57,
-        #     "Eliz": 0.66,
-        #     "Angela": 0.5767,
-        #     "Mohammad": 0.5217,
-        #     "Kenneth": 0.4717,
-        #     "Kezia": 0.4117,
-        #     "Matthew": 0.5083,
-        #     "Shengqi": 0.70,
-        # }
         exam = {
             "Vivian": 0.90,
-            "Eliz": 0.91,
+            "Eliz": 0.96,
             "Angela": 0.90,
             "Mohammad": 0.85,
-            "Kenneth": 0.82,
+            "Kenneth": 0.86,
             "Kezia": 0.79,
             "Matthew": 0.84,
             "Shengqi": 1.0,
         }
-        part = {
+        attend = {
             "Vivian": 1.0,
-            "Eliz": 1.0,
+            "Eliz": 0.9,
             "Angela": 1.0,
-            "Mohammad": 1.0,
+            "Mohammad": 0.9,
             "Kenneth": 1.0,
             "Kezia": 1.0,
             "Matthew": 1.0,
-            "Shengqi": 1.0,
+            "Shengqi": 0.9,
         }
         paper = {
-            "Vivian": 0.93,
-            "Eliz": 0.92,
-            "Angela": 0.98,
-            "Mohammad": 0.78,
-            "Kenneth": 0.87,
-            "Kezia": 0.87,
-            "Matthew": 0.92,
-            "Shengqi": 0.92,
+            "Vivian": 0.975,
+            "Eliz": 0.64,
+            "Angela": 0.975,
+            "Mohammad": 0.945,
+            "Kenneth": 0.945,
+            "Kezia": 0.74,
+            "Matthew": 0.87,
+            "Shengqi": 0.91,
         }
         for student in hw_raw.keys():
             final_score = get_final_score(
                 hw_maxes=hw_max_pts,
                 hw_raw=hw_raw.get(student),
                 exam=exam.get(student),
-                part=part.get(student),
+                attend=attend.get(student),
                 paper=paper.get(student),
             )
             print(f"{student:<8} | {final_score:.3f}")
